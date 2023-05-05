@@ -1,0 +1,50 @@
+# FROM php:8.2-apache-bullseye
+FROM ubuntu:focal-20230126
+
+ENV TZ Asia/Tokyo
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y tzdata \
+  && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    less \
+    vim \
+    openssl \
+    php7.4-fpm \
+		php-mbstring \
+		# phpdocumenterに怒られた
+		php7.4-xml \
+		# composerに文句言われた
+		php7.4-curl \ 
+    apache2 \
+    mariadb-server \
+		# phpstanで必要やった
+		zip unzip \
+  # curl エラー
+  && apt-get reinstall ca-certificates \
+  && update-ca-certificates \
+  # キャッシュ削除
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY init.sh /
+RUN chmod +x /init.sh \
+  && echo ServerName web_host > /etc/apache2/conf-available/fqdn.conf \
+  && a2enconf fqdn php7.4-fpm \
+# fpm連携 & ssl
+  && a2enmod proxy_fcgi setenvif ssl
+
+# apache 設定
+COPY ./keys/server.crt /etc/ssl/certs
+COPY ./keys/server.key /etc/ssl/private
+
+COPY quiz.nu-face.jp.conf /etc/apache2/sites-available
+RUN a2ensite quiz.nu-face.jp
+
+# Composer(Multi stage builds)
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/
+CMD ["/init.sh"]
+# ENTRYPOINT service apache2 restart && bash

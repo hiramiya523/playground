@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: c_web
+    hostname: web_host
+    build: 
+      context: ./docker/web
+      dockerfile: Dockerfile-web
+    tty: true
+    ports:
+      - ${BIND_IP}:80:80
+      - ${BIND_IP}:443:443
+    volumes:
+      - ./appli:/var/www
+      - db-store:/var/lib/mysql
+      # - ./docker/app/:/docker-entrypoint-initdb.d/
+
+  db:
+    container_name: c_db
+    hostname: db
+    restart: unless-stopped
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+    volumes:
+      - db-store:/var/lib/mysql
+      - ./docker/db/sql:/docker-entrypoint-initdb.d
+    ports:
+      - ${BIND_IP}:3806:3306
+volumes:
+  db-store:

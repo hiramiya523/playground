@@ -1,0 +1,54 @@
+html{
+	height: 100%;
+}
+
+body {
+	height: 90%;
+}
+
+section {
+  width:90%;
+  margin:0 auto;
+  text-align: center;
+}
+
+section img {
+	width: 50%;
+}
+
+.menu {
+	margin-top: 80px;
+}
+
+.menu h1 {
+	font-size: 30px;
+}
+
+.menu-list {
+	margin-top: 50px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.menu-list a {
+	display: block;
+	width: 30%;
+}
+
+.menu-list a img {
+	width: 100%;
+	height: 250px;
+}
+
+.menu-list a p {
+	margin-top: 10px;
+}
+
+.menu a:hover {
+	text-decoration: underline;
+}
+
+a img:hover{
+	opacity: 0.8;
+	transition: 0.5s;
+}
